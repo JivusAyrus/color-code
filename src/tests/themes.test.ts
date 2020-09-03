@@ -25,7 +25,7 @@ export interface ThemeData {
 	registry: Registry;
 }
 
-class ThemeInfo {
+export class ThemeInfo {
 	private _themeName: string;
 	private _filename: string;
 	private _includeFilename: string | undefined;
