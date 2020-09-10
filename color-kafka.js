@@ -17,7 +17,6 @@ const kafka = new Kafka({
 })
 
 const producer = kafka.producer()
-
 const adminSecret = process.env.ADMIN_SECRET || "cuerate";
 
 const SUPPORTED_LANGUAGES = [
@@ -64,7 +63,6 @@ app.post("/get-code-video", (req, res) => {
 	const userId = req.body.userId || "";
 	const codeLanguage = req.body.language || "";
 	const theme = req.body.theme || "dark_vs.json";
-	const ocrPhotoName = req.body.objectName || "";
 	let codeContent = req.body.codeContent || "";
 	
 	const invalidResponse = checkInvalidData(codeLanguage, theme);
@@ -74,11 +72,6 @@ app.post("/get-code-video", (req, res) => {
 			"response": invalidResponse
 		}, 400)
 		res.end()
-	}
-
-	if (codeContent == "") {
-		// OCR
-		// set codeContent to the code extracted
 	}
 
 	async.waterfall([
@@ -117,8 +110,8 @@ function generateVsColorCodes(userId, language, theme, codeContent, callback) {
 
 	const payload = JSON.stringify({
         	code: codeContent,
-			theme: theme,
-			language: language
+		theme: theme,
+		language: language
 	});
 	console.log("payload: ", payload);
 
@@ -130,7 +123,7 @@ function generateVsColorCodes(userId, language, theme, codeContent, callback) {
 		},
         body: payload
     }).then(response => {
-		if (response.status && response.status != 200) {
+		if (!response.status || response.status != 200) {
 			const err = new Error("received non-200 http status code while generating video color code");
 			throw err;
 		}
@@ -160,7 +153,7 @@ function addVideoStatus(userId, colorCodes, callback) {
 			variables
 		})
 	}).then(response => {
-		if (response.status && response.status != 200) {
+		if (!response.status || response.status != 200) {
 			const error = new Error("received non-200 http status code while creating video status id");
 			return callback(error);
 		}
@@ -183,8 +176,8 @@ function toKafka(videoStatusId, userId, colorCodes, callback) {
 			topic: 'color',
 			messages: [{
 			    key: JSON.stringify({
-			       	id: videoStatusId,
-					userId: userId
+			       	videoStatusId,
+					userId
 		    	}),
 			    value: JSON.stringify(colorCodes),
 			}],

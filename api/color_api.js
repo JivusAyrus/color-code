@@ -13,7 +13,7 @@ const kafka = new Kafka({
 })
 
 let THEMES_PATH='/home/suvij/vscode-textmate/test-cases/themes/'
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 3000;
 const app = express();
 
 const producer = kafka.producer()
