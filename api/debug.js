@@ -1,6 +1,6 @@
 const express = require('express')
 const app = express()
-const port = 3000
+const port = 3001
 
 const fs = require('fs');
 const path = require('path');
@@ -10,6 +10,10 @@ const themedTokenize = require('../out/tests/themedTokenizerCustom');
 const main = require('../out/main');
 const plist = require('../out/plist');
 
+const Resolver = require('../out/tests/resolver');
+const onigLib = require('../out/tests/onigLibs');
+const themes = require('../out/tests/themes_custom');
+
 app.get('/', (req, res) => {
 	  res.send('Hello World!')
 })
@@ -18,13 +22,16 @@ app.listen(port, () => {
 	  console.log(`Example app listening at http://localhost:${port}`)
 })
 
-let THEMES_PATH='/home/suvij/vscode-textmate/test-cases/themes/'
+let THEMES_PATH='/home/karthic/color-code/test-cases/themes/'
 
 function readFile(path) {
 	return new Promise((resolve, reject) => {
 		fs.readFile(path, (error, data) => error ? reject(error) : resolve(data));
 	})  
 }
+
+// Path containing all the theme settings.
+const THEMES_TEST_PATH = path.join(__dirname, '../test-cases/themes');
 
 function readTheme(filename) {
 	let fullPath = path.join(THEMES_PATH, filename);
@@ -36,6 +43,23 @@ function readTheme(filename) {
 }
 
 app.use(express.json());
+
+app.get("/test", async function(req, res) {
+	console.log("test ..here 1")
+	//await producer.connect()
+	//console.log(req.body)
+	//var code = req.body.code 
+        //var theme = req.body.theme
+	//var language = req.body.language
+	//console.log(code)
+	// Create a Themeinfo object for finding color codes.
+	var contents = fs.readFileSync('../input.js', 'utf-8'); 
+	var code = await themes.getColorCodes('dark_plus', ['dark_plus.json', 'dark_vs.json'], contents, ".js");	
+
+	console.log(code);	
+	res.send(JSON.stringify(code));
+	res.end()
+})
 
 app.post("/javascript", (req, res) => {
 	console.log("test ..here 1")
