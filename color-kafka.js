@@ -31,20 +31,20 @@ const SUPPORTED_LANGUAGES = [
 ]
 
 const SUPPORTED_THEMES = [
-	'Abyss.tmTheme',
-	'dark_vs.json',
-	'light_vs.json',
-	'hc_black.json',
-	'dark_vs.json',
-	'light_vs.json',
-	'Kimbie_dark.tmTheme',
-	'Monokai.tmTheme',
-	'dimmed-monokai.tmTheme',
-	'QuietLight.tmTheme',
-	'red.tmTheme',
-	'Solarized-dark.tmTheme',
-	'Solarized-light.tmTheme',
-	'Tomorrow-Night-Blue.tmTheme'
+	'abyss',
+	'dark_vs',
+	'light_vs',
+	'hc_black',
+	'dark_plus',
+	'light_plus',
+	'kimbie_dark',
+	'monokai',
+	'monokai_dimmed',
+	'quietlight',
+	'red',
+	'solarized_dark',
+	'solarized_light',
+	'tomorrow_night_blue'
 ]
 
 function checkInvalidData(language, theme) {
@@ -67,11 +67,11 @@ app.post("/get-code-video", (req, res) => {
 	
 	const invalidResponse = checkInvalidData(codeLanguage, theme);
 	if (invalidResponse != null) {
-		res.json({
+		console.error(invalidResponse);
+		return res.status(400).json({
 			"status": "error",
 			"response": invalidResponse
-		}, 400)
-		res.end()
+		})
 	}
 
 	async.waterfall([
@@ -90,7 +90,7 @@ app.post("/get-code-video", (req, res) => {
 			})
 		}
 		console.log("Video status id: ", videoStatusId);
-		res.json({
+		return res.json({
 			status: "success",
 			response: {
 				videoStatusId
@@ -115,7 +115,7 @@ function generateVsColorCodes(userId, language, theme, codeContent, callback) {
 	});
 	console.log("payload: ", payload);
 
-    fetch('http://localhost:3000/javascript', {
+    fetch('http://localhost:3000/color-codes', {
 		method: "POST",
 		headers: {
 			'Content-Type': 'application/json',
