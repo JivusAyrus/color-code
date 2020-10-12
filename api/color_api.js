@@ -7,13 +7,16 @@ const themedTokenize = require('../out/tests/themedTokenizerCustom');
 const main = require('../out/main');
 const { Kafka } = require('kafkajs')
 
+const THEMES_PATH='/home/prashantshahi567/color-code/test-cases/themes/'
+const port = process.env.PORT || 3000;
+const kafkaAddress = process.env.KAFKA_ADDRESS || "localhost:9092";
+
 const kafka = new Kafka({
 	clientId: 'my-app',
-	brokers: ['localhost:9092']
+	brokers: [kafkaAddress]
 })
 
-let THEMES_PATH='/home/suvij/vscode-textmate/test-cases/themes/'
-const port = process.env.PORT || 3000;
+
 const app = express();
 
 const producer = kafka.producer()

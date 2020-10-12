@@ -6,6 +6,8 @@ const cors = require('cors');
 const async = require('async');
 
 const port = process.env.PORT || 8181;
+const kafkaAddress = process.env.KAFKA_ADDRESS || "localhost:9092";
+const colorApiEndpoint = process.env.COLOR_API_ENDPOINT || "localhost:3000";
 
 const app = express();
 app.use(express.json())
@@ -13,11 +15,13 @@ app.use(cors());
 
 const kafka = new Kafka({
     clientId: 'my-app',
-    brokers: ['localhost:9092']
+    brokers: [kafkaAddress]
 })
 
-const producer = kafka.producer()
-const adminSecret = process.env.ADMIN_SECRET || "cuerate";
+const producer = kafka.producer();
+
+const graphqlEndpoint = process.env.GRAPHQL_ENDPOINT || "https://cuerated.herokuapp.com/v1/graphql";
+const adminSecret = process.env.ADMIN_SECRET || "jumla@2020";
 
 const SUPPORTED_LANGUAGES = [
 	"c",
@@ -105,22 +109,22 @@ app.listen(port, () => {
 
 
 function generateVsColorCodes(userId, language, theme, codeContent, callback) {
-	console.log("::generateVideo::");
+    console.log("::generateVideo::");
     console.log(userId, language, theme, codeContent, callback);
 
-	const payload = JSON.stringify({
-        	code: codeContent,
-		theme: theme,
-		language: language
-	});
-	console.log("payload: ", payload);
+    const payload = JSON.stringify({
+        code: codeContent,
+	theme: theme,
+	language: language
+    });
+    console.log("payload: ", payload);
 
-    fetch('http://localhost:3000/color-codes', {
-		method: "POST",
-		headers: {
-			'Content-Type': 'application/json',
-			'Accept': '*/*'
-		},
+    fetch('http://${colorApiEndpoint}/color-codes', {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': '*/*'
+        },
         body: payload
     }).then(response => {
 		if (!response.status || response.status != 200) {
@@ -135,7 +139,6 @@ function generateVsColorCodes(userId, language, theme, codeContent, callback) {
 }
 
 function addVideoStatus(userId, colorCodes, callback) {
-	const url = "https://cuerate.herokuapp.com/v1/graphql";
     const query = "mutation CodeVideoStatusMutation($status: Boolean = false, $user_id: String) { insert_code_video_status_one(object: {user_id: $user_id, status: $status}) { id object_name status user_id } }"
     const variables = {
         status: false,
@@ -143,17 +146,17 @@ function addVideoStatus(userId, colorCodes, callback) {
     }
     const headers = {
         "content-type": "application/json",
-		"x-hasura-admin-secret": adminSecret
+	"x-hasura-admin-secret": adminSecret
     }
-    fetch(url, {
-		method: "POST",
-		headers: headers,
+    fetch(graphqlEndpoint, {
+	method: "POST",
+	headers: headers,
         body: JSON.stringify({
-			query,
-			variables
-		})
-	}).then(response => {
-		if (!response.status || response.status != 200) {
+		query,
+		variables
+	})
+    }).then(response => {
+	    if (!response.status || response.status != 200) {
 			const error = new Error("received non-200 http status code while creating video status id");
 			return callback(error);
 		}
