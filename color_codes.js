@@ -4,17 +4,17 @@ const port = 3000
 
 const fs = require('fs');
 const path = require('path');
-const vsctm = require('./release/main');
 const oniguruma = require('oniguruma');
-const themedTokenize = require('./out/tests/themedTokenizerCustom');
-const main = require('./out/main');
-const plist = require('./out/plist');
+const vsctm = require('@root/release/main');
+const themedTokenize = require('@root/out/tests/themedTokenizerCustom');
+const main = require('@root/out/main');
+const plist = require('@root/out/plist');
 
-const Resolver = require('./out/tests/resolver');
-const onigLib = require('./out/tests/onigLibs');
-const themes = require('./out/tests/themes_custom');
+const Resolver = require('@root/out/tests/resolver');
+const onigLib = require('@root/out/tests/onigLibs');
+const themes = require('@root/out/tests/themes_custom');
 
-let THEMES_PATH='/home/suvij/color-code/test-cases/themes/'
+const THEMES_PATH='./test-cases/themes/'
 
 app.use(express.json());
 
