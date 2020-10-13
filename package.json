@@ -27,7 +27,7 @@
     "prepublishOnly": "tsc && webpack --progress && node scripts/release.js"
   },
   "_moduleAliases": {
-    "@root"      : "."
+    "@root": "."
   },
   "devDependencies": {
     "@types/node": "^12.6.2",

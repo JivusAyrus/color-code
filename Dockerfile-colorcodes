@@ -15,4 +15,4 @@ RUN npm install && npm run compile
 
 # Bundle app source
 COPY . .
-CMD [ "node", "./api/color_api.js" ]
+CMD [ "node", "./color_codes.js" ]
