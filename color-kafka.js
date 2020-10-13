@@ -6,6 +6,8 @@ const cors = require('cors');
 const async = require('async');
 
 const port = process.env.PORT || 8181;
+const kafkaAddress = process.env.KAFKA_ADDRESS || "localhost:9092";
+const colorApiEndpoint = process.env.COLOR_API_ENDPOINT || "localhost:3000";
 
 const app = express();
 app.use(express.json())
@@ -13,12 +15,13 @@ app.use(cors());
 
 const kafka = new Kafka({
     clientId: 'my-app',
-    brokers: ['localhost:9092']
+    brokers: [kafkaAddress]
 })
 
-const producer = kafka.producer()
+const producer = kafka.producer();
 
-const adminSecret = process.env.ADMIN_SECRET || "cuerate";
+const graphqlEndpoint = process.env.GRAPHQL_ENDPOINT || "https://cuerated.herokuapp.com/v1/graphql";
+const adminSecret = process.env.ADMIN_SECRET || "jumla@2020";
 
 const SUPPORTED_LANGUAGES = [
 	"c",
@@ -32,20 +35,20 @@ const SUPPORTED_LANGUAGES = [
 ]
 
 const SUPPORTED_THEMES = [
-	'Abyss.tmTheme',
-	'dark_vs.json',
-	'light_vs.json',
-	'hc_black.json',
-	'dark_vs.json',
-	'light_vs.json',
-	'Kimbie_dark.tmTheme',
-	'Monokai.tmTheme',
-	'dimmed-monokai.tmTheme',
-	'QuietLight.tmTheme',
-	'red.tmTheme',
-	'Solarized-dark.tmTheme',
-	'Solarized-light.tmTheme',
-	'Tomorrow-Night-Blue.tmTheme'
+	'abyss',
+	'dark_vs',
+	'light_vs',
+	'hc_black',
+	'dark_plus',
+	'light_plus',
+	'kimbie_dark',
+	'monokai',
+	'monokai_dimmed',
+	'quietlight',
+	'red',
+	'solarized_dark',
+	'solarized_light',
+	'tomorrow_night_blue'
 ]
 
 function checkInvalidData(language, theme) {
@@ -64,21 +67,15 @@ app.post("/get-code-video", (req, res) => {
 	const userId = req.body.userId || "";
 	const codeLanguage = req.body.language || "";
 	const theme = req.body.theme || "dark_vs.json";
-	const ocrPhotoName = req.body.objectName || "";
 	let codeContent = req.body.codeContent || "";
 	
 	const invalidResponse = checkInvalidData(codeLanguage, theme);
 	if (invalidResponse != null) {
-		res.json({
+		console.error(invalidResponse);
+		return res.status(400).json({
 			"status": "error",
 			"response": invalidResponse
-		}, 400)
-		res.end()
-	}
-
-	if (codeContent == "") {
-		// OCR
-		// set codeContent to the code extracted
+		})
 	}
 
 	async.waterfall([
@@ -97,7 +94,7 @@ app.post("/get-code-video", (req, res) => {
 			})
 		}
 		console.log("Video status id: ", videoStatusId);
-		res.json({
+		return res.json({
 			status: "success",
 			response: {
 				videoStatusId
@@ -112,25 +109,25 @@ app.listen(port, () => {
 
 
 function generateVsColorCodes(userId, language, theme, codeContent, callback) {
-	console.log("::generateVideo::");
+    console.log("::generateVideo::");
     console.log(userId, language, theme, codeContent, callback);
 
-	const payload = JSON.stringify({
-        	code: codeContent,
-			theme: theme,
-			language: language
-	});
-	console.log("payload: ", payload);
+    const payload = JSON.stringify({
+        code: codeContent,
+	theme: theme,
+	language: language
+    });
+    console.log("payload: ", payload);
 
-    fetch('http://localhost:3000/javascript', {
-		method: "POST",
-		headers: {
-			'Content-Type': 'application/json',
-			'Accept': '*/*'
-		},
+    fetch('http://${colorApiEndpoint}/color-codes', {
+        method: "POST",
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': '*/*'
+        },
         body: payload
     }).then(response => {
-		if (response.status && response.status != 200) {
+		if (!response.status || response.status != 200) {
 			const err = new Error("received non-200 http status code while generating video color code");
 			throw err;
 		}
@@ -142,7 +139,6 @@ function generateVsColorCodes(userId, language, theme, codeContent, callback) {
 }
 
 function addVideoStatus(userId, colorCodes, callback) {
-	const url = "https://cuerate.herokuapp.com/v1/graphql";
     const query = "mutation CodeVideoStatusMutation($status: Boolean = false, $user_id: String) { insert_code_video_status_one(object: {user_id: $user_id, status: $status}) { id object_name status user_id } }"
     const variables = {
         status: false,
@@ -150,17 +146,17 @@ function addVideoStatus(userId, colorCodes, callback) {
     }
     const headers = {
         "content-type": "application/json",
-		"x-hasura-admin-secret": adminSecret
+	"x-hasura-admin-secret": adminSecret
     }
-    fetch(url, {
-		method: "POST",
-		headers: headers,
+    fetch(graphqlEndpoint, {
+	method: "POST",
+	headers: headers,
         body: JSON.stringify({
-			query,
-			variables
-		})
-	}).then(response => {
-		if (response.status && response.status != 200) {
+		query,
+		variables
+	})
+    }).then(response => {
+	    if (!response.status || response.status != 200) {
 			const error = new Error("received non-200 http status code while creating video status id");
 			return callback(error);
 		}
@@ -183,8 +179,8 @@ function toKafka(videoStatusId, userId, colorCodes, callback) {
 			topic: 'color',
 			messages: [{
 			    key: JSON.stringify({
-			       	id: videoStatusId,
-					userId: userId
+			       	videoStatusId,
+					userId
 		    	}),
 			    value: JSON.stringify(colorCodes),
 			}],
