@@ -1,3 +1,6 @@
+// Allows absolute paths
+require("module-alias/register");
+
 const express = require('express')
 const app = express()
 const port = 3000
@@ -98,5 +101,5 @@ app.post("/color-codes", async function(req, res) {
 })
 
 app.listen(port, () => {
-    console.log(`Example app listening at http://localhost:${port}`)
+    console.log(`Color code app listening at port ${port}`)
 })

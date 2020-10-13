@@ -1,4 +1,4 @@
-iconst fs = require('fs');
+const fs = require('fs');
 const fetch = require('node-fetch');
 const { Kafka } = require('kafkajs');
 const express = require('express');
