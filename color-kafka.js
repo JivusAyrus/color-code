@@ -1,4 +1,4 @@
-const fs = require('fs');
+iconst fs = require('fs');
 const fetch = require('node-fetch');
 const { Kafka } = require('kafkajs');
 const express = require('express');
@@ -24,14 +24,37 @@ const graphqlEndpoint = process.env.GRAPHQL_ENDPOINT || "https://cuerated.heroku
 const adminSecret = process.env.ADMIN_SECRET || "jumla@2020";
 
 const SUPPORTED_LANGUAGES = [
-	"c",
-	"c++",
-	"dart",
-	"go",
-	"java",
-	"javascript",
-	"ruby",
-	"python"
+    "batch",
+    "c",
+    "c++",
+    "clojure",
+    "css",
+    "dockerfile",
+    "go",
+    "html",
+    "jade",
+    "java",
+    "javascript",
+    "javascriptreact",
+    "json",
+    "markdown",
+    "objective-c",
+    "perl",
+    "php",
+    "powershell",
+    "properties",
+    "python",
+    "r",
+    "ruby",
+    "rust",
+    "scss",
+    "shellscript",
+    "sql",
+    "swift",
+    "typescript",
+    "typescriptreact",
+    "xml",
+    "yaml",
 ]
 
 const SUPPORTED_THEMES = [
