@@ -7,6 +7,7 @@ const async = require('async');
 
 const port = process.env.PORT || 8181;
 const kafkaAddress = process.env.KAFKA_ADDRESS || "localhost:9092";
+const kafkaTopic = process.env.KAFKA_TOPIC || "color";
 const colorApiEndpoint = process.env.COLOR_API_ENDPOINT || "localhost:3000";
 
 const app = express();
@@ -199,7 +200,7 @@ function toKafka(videoStatusId, userId, colorCodes, callback) {
     producer.connect()
 	.then(() => 
 	    producer.send({
-			topic: 'color',
+			topic: kafkaTopic,
 			messages: [{
 			    key: JSON.stringify({
 			       	videoStatusId,
