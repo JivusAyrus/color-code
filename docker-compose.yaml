@@ -1,0 +1,147 @@
+version: "3"
+services:
+  zookeeper:
+    image: confluentinc/cp-zookeeper:6.0.0
+    hostname: zookeeper
+    container_name: zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+
+  kafka:
+    image: confluentinc/cp-kafka:6.0.0
+    hostname: kafka
+    container_name: kafka
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: 'zookeeper:2181'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:29092,PLAINTEXT_HOST://kafka:9092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_JMX_PORT: 9101
+    healthcheck:
+      test:
+        ["CMD", "kafka-topics", "--list", "--zookeeper", "zookeeper:2181"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+
+  minio:
+    image: minio/minio:latest
+    volumes:
+      - ~/minio-data:/data
+    environment:
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+    ports:
+      - "9001:9001"
+    command: server /data --address ":9001"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://minio:9001/minio/health/live"]
+      interval: 1m30s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+
+  color-codes:
+    build:
+      context: color-code
+      dockerfile: Dockerfile-colorcodes
+    restart: on-failure
+
+  color-kafka:
+    build:
+      context: color-code
+    depends_on:
+      - kafka
+      - color-codes
+    environment:
+      - KAFKA_ADDRESS=kafka:9092
+      - KAFKA_TOPIC=color
+      - COLOR_CODE_ENDPOINT=http://color-codes:3000
+      - GRAPHQL_ENDPOINT=https://cuerated.herokuapp.com/v1/graphql
+      - ADMIN_SECRET=jumla@2020
+    restart: on-failure
+
+  stitch-producer:
+    build:
+      context: stitch-producer
+    depends_on:
+      - kafka
+    environment:
+      - KAFKA_ADDRESS=kafka:9092
+      - KAFKA_TOPIC=stitch_video_objects
+      - GRAPHQL_ENDPOINT=https://cuerated.herokuapp.com/v1/graphql
+      - ADMIN_SECRET=jumla@2020
+    restart: on-failure
+
+  stitch-consumer:
+    build:
+      context: web-recorder-stitch
+      dockerfile: Dockerfile-flask
+    depends_on:
+      - minio
+      - kafka
+    environment:
+      - KAFKA_ADDRESS=kafka:9092
+      - KAFKA_TOPIC=stitch_video_objects
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_ENDPOINT=minio:9001
+      - MINIO_SECURE=False
+      - MINIO_BUCKET=uploads
+      - MINIO_PUBLIC_URL=http://34.67.73.140:9001/minio
+    restart: on-failure
+
+  proxy:
+    build:
+      context: proxy
+    depends_on:
+      - color-kafka
+      - stitch-producer
+      - ocr
+    ports:
+      - "8180:8180"
+    environment:
+      - AUTH0_ENDPOINT=https://dev-nus7dz9x.auth0.com
+      - GRAPHQL_ENDPOINT=https://cuerated.herokuapp.com/v1/graphql
+      - ADMIN_SECRET=jumla@2020
+      - COLOR_KAFKA_SERVER=http://color-kafka:8181
+      - STITCH_SERVER=http://stitch-producer:8182
+      - OCR_SERVER=http://ocr:5000
+    restart: on-failure
+
+  code-video:
+    build:
+      context: code-video-processors
+    environment:
+      - KAFKA_ADDRESS=kafka:9092
+      - KAFKA_TOPIC=color
+    depends_on:
+      - minio
+      - kafka
+      - zookeeper
+    restart: on-failure
+      
+  ocr:
+    build:
+      context: OCR-server
+    volumes:
+      - /home/prashantshahi567/CuerateCOM-40d33ab51103.json:/usr/src/credentials.json
+    depends_on:
+      - minio
+    environment:
+      - MINIO_ACCESS_KEY=minioadmin
+      - MINIO_SECRET_KEY=minioadmin
+      - MINIO_ENDPOINT=minio:9001
+      - MINIO_SECURE=False
+      - MINIO_BUCKET=uploads
+      - MINIO_PUBLIC_URL=http://34.67.73.140:9001/minio
+      - GOOGLE_APPLICATION_CREDENTIALS=/usr/src/credentials.json
+    restart: on-failure

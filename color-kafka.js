@@ -8,7 +8,7 @@ const async = require('async');
 const port = process.env.PORT || 8181;
 const kafkaAddress = process.env.KAFKA_ADDRESS || "localhost:9092";
 const kafkaTopic = process.env.KAFKA_TOPIC || "color";
-const colorApiEndpoint = process.env.COLOR_API_ENDPOINT || "localhost:3000";
+const colorCodeEndpoint = process.env.COLOR_CODE_ENDPOINT || "http://localhost:3000";
 
 const app = express();
 app.use(express.json())
@@ -142,8 +142,7 @@ function generateVsColorCodes(userId, language, theme, codeContent, callback) {
 	language: language
     });
     console.log("payload: ", payload);
-
-    fetch('http://${colorApiEndpoint}/color-codes', {
+    fetch(`${colorCodeEndpoint}/color-codes`, {
         method: "POST",
         headers: {
             'Content-Type': 'application/json',
