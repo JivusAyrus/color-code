@@ -21,7 +21,7 @@ const kafka = new Kafka({
 
 const producer = kafka.producer();
 
-const graphqlEndpoint = process.env.GRAPHQL_ENDPOINT || "https://cuerated.herokuapp.com/v1/graphql";
+const graphqlEndpoint = process.env.GRAPHQL_ENDPOINT || "https://incredible-dev.herokuapp.com/v1/graphql";
 const adminSecret = process.env.ADMIN_SECRET || "jumla@2020";
 
 const SUPPORTED_LANGUAGES = [
