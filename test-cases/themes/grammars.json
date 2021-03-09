@@ -261,5 +261,10 @@
 		"language": "yaml",
 		"scopeName": "source.yaml",
 		"path": "./syntaxes/yaml.json"
+	},
+	{
+		"language": "graphql",
+		"scopeName": "source.graphql",
+		"path": "./syntaxes/graphql.json"
 	}
 ]

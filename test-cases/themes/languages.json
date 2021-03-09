@@ -1,5 +1,16 @@
 [
 	{
+		"id": "graphql",
+		"extensions": [
+			".graphql"
+		],
+		"aliases": [
+			"GraphQL",
+			"graphql"
+		],
+		"configuration": "./language-configuration.json"
+	},
+	{
 		"id": "bat",
 		"extensions": [
 			".bat",
