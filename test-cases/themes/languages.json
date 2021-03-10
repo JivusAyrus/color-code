@@ -11,6 +11,17 @@
 		"configuration": "./language-configuration.json"
 	},
 	{
+		"id": "haskell",
+		"extensions": [
+			".hs"
+		],
+		"aliases": [
+			"Haskell",
+			"haskell"
+		],
+		"configuration": "./language-configuration.json"
+	},
+	{
 		"id": "bat",
 		"extensions": [
 			".bat",

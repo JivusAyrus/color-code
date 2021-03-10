@@ -86,6 +86,11 @@
 		}
 	},
 	{
+		"language": "haskell",
+		"scopeName": "source.haskell",
+		"path": "./syntaxes/Haskell.tmLanguage"
+	},
+	{
 		"language": "ini",
 		"scopeName": "source.properties",
 		"path": "./syntaxes/properties.plist"

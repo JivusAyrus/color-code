@@ -53,7 +53,8 @@ const langExtensions = {
 	"typescriptreact":".tsx",
 	"xml":".xml",
 	"yaml":".yaml",
-	"graphql":".graphql"
+	"graphql":".graphql",
+	"haskell":".hs"
 }
 
 const getTheme = {
