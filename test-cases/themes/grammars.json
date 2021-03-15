@@ -271,5 +271,12 @@
 		"language": "graphql",
 		"scopeName": "source.graphql",
 		"path": "./syntaxes/graphql.json"
+	},
+	{
+		"language": "matlab",
+		"scopeName": "source.matlab",
+		"path": "./syntaxes/MATLAB.tmLanguage"
 	}
+	
+
 ]

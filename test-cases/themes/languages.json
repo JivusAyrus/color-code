@@ -11,6 +11,16 @@
 		"configuration": "./language-configuration.json"
 	},
 	{
+		"id": "matlab",
+		"extensions": [
+			".m"
+		],
+		"aliases": [
+			"MATLAB"
+		],
+		"configuration": "./language-configuration.json"
+	},
+	{
 		"id": "haskell",
 		"extensions": [
 			".hs"

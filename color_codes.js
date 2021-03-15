@@ -54,7 +54,8 @@ const langExtensions = {
 	"xml":".xml",
 	"yaml":".yaml",
 	"graphql":".graphql",
-	"haskell":".hs"
+	"haskell":".hs",
+	"matlab":".m"
 }
 
 const getTheme = {
