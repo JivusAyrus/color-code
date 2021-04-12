@@ -21,5 +21,4 @@ RUN  npm run compile
 # RUN npm ci --only=production
 
 # Bundle app source
-COPY . .
-CMD [ "node", "./color-kafka.js" ]
+CMD [ "node", "./color_codes.js" ]
