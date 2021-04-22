@@ -5,7 +5,18 @@ const express = require('express');
 const app = express();
 const port = parseInt(process.env.PORT || '') || 3000;
 
+/**
+ * NOTE: Do not delete these unused imports.
+ */
+const vsctm = require('@root/release/main');
+const themedTokenize = require('@root/out/tests/themedTokenizerCustom');
+const main = require('@root/out/main');
+const plist = require('@root/out/plist');
+const Resolver = require('@root/out/tests/resolver');
+const onigLib = require('@root/out/tests/onigLibs');
 const themes = require('@root/out/tests/themes_custom');
+
+const THEMES_PATH='./testcases/themes/'
 
 app.use(express.json());
 
