@@ -4,6 +4,7 @@ require('module-alias/register');
 const express = require('express');
 const app = express();
 const port = parseInt(process.env.PORT || '') || 3000;
+const authToken = process.env.AUTH_TOKEN || '';
 
 /**
  * NOTE: Do not delete these unused imports.
@@ -16,7 +17,7 @@ const Resolver = require('@root/out/tests/resolver');
 const onigLib = require('@root/out/tests/onigLibs');
 const themes = require('@root/out/tests/themes_custom');
 
-const THEMES_PATH='./testcases/themes/'
+const THEMES_PATH = './testcases/themes/';
 
 app.use(express.json());
 
@@ -78,7 +79,17 @@ app.get('/', (req, res) => {
   res.send('UP');
 });
 
-app.post('/color-codes', async (req, res) => {
+const requestValidate = (req, res, next) => {
+  if (req.headers['x-secret'] !== authToken) {
+    return res
+      .status(401)
+      .json({ success: false, errors: ['Invalid auth token'] });
+  }
+
+  next();
+};
+
+app.post('/color-codes', requestValidate, async (req, res) => {
   const code = req.body.code || '';
   const theme = req.body.theme || 'dark_plus';
   const language = req.body.language || 'javascript';
@@ -90,7 +101,7 @@ app.post('/color-codes', async (req, res) => {
       throw err;
     }
 
-    console.log('theme:', theme, '  language:', language);
+    console.log('theme:', theme, 'language:', language);
 
     if (!(theme in getTheme)) {
       const err = new Error(`theme "${theme}" is invalid`);
@@ -110,9 +121,7 @@ app.post('/color-codes', async (req, res) => {
       langExtensions[language]
     );
 
-    console.log(color_codes);
-
-    return res.status(200).send(JSON.stringify(color_codes));
+    return res.status(200).json({ success: true, data: color_codes });
   } catch (err) {
     if (err.status) {
       console.log(err.message);
@@ -120,7 +129,9 @@ app.post('/color-codes', async (req, res) => {
       err.status = 500;
       console.error(err);
     }
-    return res.status(err.status).send(err.message);
+    return res
+      .status(err.status)
+      .json({ success: false, errors: [err.message] });
   }
 });
 
