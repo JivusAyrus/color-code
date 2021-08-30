@@ -11,7 +11,8 @@ phases:
   pre_build:
     commands:
       - TAG="$REPOSITORY_NAME.$REPOSITORY_BRANCH.$ENVIRONMENT_NAME.$(date +%Y-%m-%d.%H.%M.%S).$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
-      - sed -i 's@CONTAINER_IMAGE@'"$REPOSITORY_URI:$TAG"'@' color-code-k8s.yml
+      - K8S_YML=$([ "$EKS_CLUSTER_NAME" == "incredible-next-prod" ] && echo "color-code-prod-k8s.yml" || echo "color-code-k8s.yml")
+      - sed -i 's@CONTAINER_IMAGE@'"$REPOSITORY_URI:$TAG"'@' $K8S_YML
       - $(aws ecr get-login --no-include-email)
       - export KUBECONFIG=$HOME/.kube/config
   build:
@@ -27,7 +28,7 @@ phases:
       - export AWS_SESSION_TOKEN="$(echo ${CREDENTIALS} | jq -r '.Credentials.SessionToken')"
       - export AWS_EXPIRATION=$(echo ${CREDENTIALS} | jq -r '.Credentials.Expiration')
       - aws eks update-kubeconfig --name $EKS_CLUSTER_NAME
-      - kubectl apply -f color-code-k8s.yml
-      - printf '[{"name":"color-code-k8s","imageUri":"%s"}]' $REPOSITORY_URI:$TAG > build.json
+      - kubectl apply -f $K8S_YML
+      - printf '[{"name":"color-code","imageUri":"%s"}]' $REPOSITORY_URI:$TAG > build.json
 artifacts:
   files: build.json

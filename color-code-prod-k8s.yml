@@ -24,7 +24,12 @@ metadata:
   labels:
     name: color-code
 spec:
-  replicas: 1
+  replicas: 3
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 2
+      maxSurge: 2
   selector:
     matchLabels:
       app: color-code
