@@ -11,7 +11,7 @@ phases:
   pre_build:
     commands:
       - TAG="$REPOSITORY_NAME.$REPOSITORY_BRANCH.$ENVIRONMENT_NAME.$(date +%Y-%m-%d.%H.%M.%S).$(echo $CODEBUILD_RESOLVED_SOURCE_VERSION | head -c 8)"
-      - K8S_YML=$([ "$EKS_CLUSTER_NAME" == "incredible-next-prod" ] && echo "color-code-prod-k8s.yml" || echo "color-code-k8s.yml")
+      - K8S_YML=$([ "$EKS_CLUSTER_NAME" = "incredible-next-prod" ] && echo "color-code-prod-k8s.yml" || echo "color-code-k8s.yml")
       - sed -i 's@CONTAINER_IMAGE@'"$REPOSITORY_URI:$TAG"'@' $K8S_YML
       - $(aws ecr get-login --no-include-email)
       - export KUBECONFIG=$HOME/.kube/config
