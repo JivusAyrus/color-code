@@ -12,9 +12,6 @@ export interface IThemedTokenLine {
 }
 
 export function tokenizeWithThemeLine(colorMap: string[], fileContents: string, grammar: IGrammar): IThemedTokenLine[] {
-	
-	console.log("here 3");
-	console.log(Object.prototype.toString.call(grammar));
 	const lines = fileContents.split(/\r\n|\r|\n/);
 
 	let ruleStack: StackElement | null = null;
