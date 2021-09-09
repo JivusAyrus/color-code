@@ -56,6 +56,7 @@ const langExtensions = {
   graphql: '.graphql',
   haskell: '.hs',
   matlab: '.m',
+  toml: '.toml',
 };
 
 const getTheme = {
@@ -92,7 +93,7 @@ const requestValidate = (req, res, next) => {
 app.post('/color-codes', requestValidate, async (req, res) => {
   const code = req.body.code || '';
   const theme = req.body.theme || 'dark_plus';
-  const language = req.body.language || 'javascript';
+  let language = req.body.language;
 
   try {
     if (!code.trim()) {
@@ -109,9 +110,7 @@ app.post('/color-codes', requestValidate, async (req, res) => {
       throw err;
     }
     if (!(language in langExtensions)) {
-      const err = new Error(`language "${language}" is invalid`);
-      err.status = 400;
-      throw err;
+      language = 'javascript';
     }
 
     const color_codes = await themes.getColorCodes(

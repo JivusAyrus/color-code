@@ -276,7 +276,10 @@
 		"language": "matlab",
 		"scopeName": "source.matlab",
 		"path": "./syntaxes/MATLAB.tmLanguage"
+	},
+	{
+		"language": "toml",
+		"scopeName": "source.toml",
+		"path": "./syntaxes/TOML.tmLanguage"
 	}
-	
-
 ]
