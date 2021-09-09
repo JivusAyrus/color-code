@@ -1,5 +1,16 @@
 [
 	{
+		"id": "toml",
+		"extensions": [
+			".toml"
+		],
+		"aliases": [
+			"TOML",
+			"toml"
+		],
+		"configuration": "./language-configuration.json"
+	},
+	{
 		"id": "graphql",
 		"extensions": [
 			".graphql"
