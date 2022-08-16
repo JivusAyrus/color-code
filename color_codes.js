@@ -1,26 +1,12 @@
 // Allows absolute paths
 require("module-alias/register");
 const cors = require("cors");
-
 const express = require("express");
 const app = express();
-app.use(cors());
 const port = parseInt(process.env.PORT || "") || 3000;
-const authToken = process.env.AUTH_TOKEN || "";
-
-/**
- * NOTE: Do not delete these unused imports.
- */
-const vsctm = require("@root/release/main");
-const themedTokenize = require("@root/out/tests/themedTokenizerCustom");
-const main = require("@root/out/main");
-const plist = require("@root/out/plist");
-const Resolver = require("@root/out/tests/resolver");
-const onigLib = require("@root/out/tests/onigLibs");
 const themes = require("@root/out/tests/themes_custom");
 
-const THEMES_PATH = "./testcases/themes/";
-
+app.use(cors());
 app.use(express.json());
 
 const langExtensions = {
@@ -81,16 +67,6 @@ const getTheme = {
 app.get("/", (req, res) => {
   res.send("UP");
 });
-
-const requestValidate = (req, res, next) => {
-  if (req.headers["x-secret"] !== authToken) {
-    return res
-      .status(401)
-      .json({ success: false, errors: ["Invalid auth token"] });
-  }
-
-  next();
-};
 
 app.post("/color-codes", async (req, res) => {
   const code = req.body.code || "";
