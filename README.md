@@ -8,7 +8,3 @@ Color code server for tokenizing and generating color codes for various language
 3. Compile typescript `npm run compile`.
 4. Run the webserver `node color_codes.js`.
 
-### Docker
-1. Clone this repo.
-2. Run `docker build -t colorcodes .`
-3. Run `docker run colorcodes`
