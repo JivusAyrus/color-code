@@ -3,7 +3,7 @@ require("module-alias/register");
 const cors = require("cors");
 const express = require("express");
 const app = express();
-const port = parseInt(process.env.PORT || "") || 3000;
+const port = parseInt(process.env.PORT || "") || 4000;
 const themes = require("@root/out/tests/themes_custom");
 
 app.use(cors());
